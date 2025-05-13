@@ -1,8 +1,8 @@
 import numpy as np, csv, os, time, uuid, random
 
 # === Constants ===
-FILENAME = "contacts3.csv"
-TARGET_SIZE = 5 * 1024**3  # 5 GiB
+FILENAME = "contacts.csv"
+TARGET_SIZE = (1024**3) * 5 # 5 GiB
 BATCH_SIZE = 10000
 LOG_INTERVAL = 500_000
 
@@ -19,8 +19,8 @@ SUBADDRESSES = np.array([
 ])
 
 # === Load names from column B ===
-first_names = np.loadtxt('first_names.csv', dtype=str, delimiter=',', usecols=1)
-last_names = np.loadtxt('last_names.csv', dtype=str, delimiter=',', usecols=1)
+first_names = np.char.strip(np.loadtxt('first_names.csv', dtype=str, delimiter=',', usecols=1), '"')
+last_names = np.char.strip(np.loadtxt('last_names.csv', dtype=str, delimiter=',', usecols=1), '"')
 
 
 def generate_emails(first_names, last_names, batch_size):
