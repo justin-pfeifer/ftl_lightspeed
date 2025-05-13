@@ -1,8 +1,8 @@
 import os
 import psycopg
-from ftl import FTL
-from ftl_consumer import CopyConsumer
-from ftl_producer import CSVProducer
+from ftl_lightspeed.ftl import FTL
+from ftl_lightspeed.ftl_consumer import CopyConsumer
+from ftl_lightspeed.ftl_producer import CSVProducer
 from dotenv import load_dotenv
 
 load_dotenv()
