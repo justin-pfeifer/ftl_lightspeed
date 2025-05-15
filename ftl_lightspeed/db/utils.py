@@ -4,28 +4,23 @@ import re
 
 def split_class_name(name: str) -> str:
     """
-    Split PascalCase into a space-separated string, preserving known acronyms.
+    Split PascalCase into readable words while preserving acronyms like FTL or ETL.
+
     For example:
+    - "FTL" → "FTL"
     - "FTLProducer" → "FTL Producer"
-    - "ETLRunner"   → "ETL Runner"
-    - "ContactLoad" → "Contact Load"
+    - "UserETLJob" → "User ETL Job"
     """
-    # Known acronyms that should not be split
-    acronyms = {"FTL", "ETL"}
+    # First, split PascalCase into words
+    parts = re.findall(r'[A-Z]+(?=[A-Z][a-z]|[0-9]|$)|[A-Z][a-z]*|[a-z]+|\d+', name)
 
-    # Matches acronym followed by a capitalized word
-    def preserve_acronyms(match):
-        prefix, word = match.groups()
-        return f"{prefix} {word}"
+    # Known acronyms to preserve (uppercased)
+    acronyms = {"FTL", "ETL", "API", "SQL"}
 
-    # First pass: preserve acronyms followed by another capitalized word
-    pattern = re.compile(rf"({'|'.join(acronyms)})([A-Z][a-z]+)")
-    name = pattern.sub(preserve_acronyms, name)
+    # Join with space, uppercasing known acronyms
+    result = ' '.join(part if part.upper() not in acronyms else part.upper() for part in parts)
 
-    # Second pass: split remaining PascalCase parts
-    name = re.sub(r'(?<!^)(?=[A-Z])', ' ', name)
-
-    return name
+    return result
 
 def set_application_name(cur, mode: str = "Dev", job: str = "Generic FTL Job"):
     """
@@ -35,5 +30,5 @@ def set_application_name(cur, mode: str = "Dev", job: str = "Generic FTL Job"):
     :param mode: "Producer", "Consumer", "Dev", etc.
     :param job: short description or script name
     """
-    label = f"FTL Lightspeed v{__version__} - [{mode}] {job}"
+    label = f"FTL Lightspeed v{__version__} - [{mode}] {split_class_name(job)}"
     cur.execute(sql.SQL("SET application_name = {}").format(sql.Literal(label)))

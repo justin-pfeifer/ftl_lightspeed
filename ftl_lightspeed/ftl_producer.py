@@ -50,8 +50,7 @@ class CopyProducer(FTLProducer):
         This method yields chunks of data as bytes.
         """
         with self.source_conn.cursor() as cur:
-            job = split_class_name(self.__class__.__name__)
-            set_application_name(cur, mode=self.mode, job=job)
+            set_application_name(cur, mode=self.mode, job=self.__class__.__name__)
             copy_sql = sql.SQL("COPY ({}) TO STDOUT WITH CSV").format(sql.SQL(self.query))
             with cur.copy(copy_sql) as copy_out:
                 buffer = bytearray()
