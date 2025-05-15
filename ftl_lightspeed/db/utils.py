@@ -4,10 +4,28 @@ import re
 
 def split_class_name(name: str) -> str:
     """
-    Split a class name into a more readable format.
-    For example, "MyClassName" becomes "My Class Name".
+    Split PascalCase into a space-separated string, preserving known acronyms.
+    For example:
+    - "FTLProducer" → "FTL Producer"
+    - "ETLRunner"   → "ETL Runner"
+    - "ContactLoad" → "Contact Load"
     """
-    return re.sub(r'(?<!^)(?=[A-Z])', ' ', name)
+    # Known acronyms that should not be split
+    acronyms = {"FTL", "ETL"}
+
+    # Matches acronym followed by a capitalized word
+    def preserve_acronyms(match):
+        prefix, word = match.groups()
+        return f"{prefix} {word}"
+
+    # First pass: preserve acronyms followed by another capitalized word
+    pattern = re.compile(rf"({'|'.join(acronyms)})([A-Z][a-z]+)")
+    name = pattern.sub(preserve_acronyms, name)
+
+    # Second pass: split remaining PascalCase parts
+    name = re.sub(r'(?<!^)(?=[A-Z])', ' ', name)
+
+    return name
 
 def set_application_name(cur, mode: str = "Dev", job: str = "Generic FTL Job"):
     """

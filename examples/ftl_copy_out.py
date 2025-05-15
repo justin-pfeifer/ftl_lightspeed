@@ -31,7 +31,6 @@ class LightspeedFTL(CopyProducer, FTL):
             email,
             subaddress
         FROM contacts
-        limit 5000000
     """
     chunk_size = 512  # in bytes
 
