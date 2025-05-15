@@ -1,0 +1,1 @@
+from ftl_lightspeed.version import __version__

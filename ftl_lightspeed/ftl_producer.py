@@ -1,4 +1,6 @@
 from psycopg import Connection, sql
+from ftl_lightspeed import __version__
+from ftl_lightspeed.db.utils import set_application_name
 
 
 def toHeaders(headers: list[str]) -> str:
@@ -25,6 +27,7 @@ class CopyProducer:
 
     def stream(self):
         with self.source_conn.cursor() as cur:
+            set_application_name(cur, "COPY Producer")
             copy_sql = sql.SQL("COPY ({}) TO STDOUT WITH CSV").format(sql.SQL(self.query))
             with cur.copy(copy_sql) as copy_out:
                 buffer = bytearray()

@@ -1,5 +1,7 @@
 import os
 import logging
+from ftl_lightspeed import __version__
+from ftl_lightspeed.db.utils import set_application_name
 
 logger = logging.getLogger("ftl")
 logger.setLevel(logging.INFO)  # Can override via env or main script
@@ -30,6 +32,8 @@ class CopyConsumer:
         self.cur = None
         self._context = None
         self.copy_in = None
+        with self.conn.cursor() as cur:
+            set_application_name(cur, "COPY Consumer")
 
     def __enter__(self):
         logger.info(f"[START] COPY -> {self.table}")
