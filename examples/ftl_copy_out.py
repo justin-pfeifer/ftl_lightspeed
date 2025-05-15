@@ -31,6 +31,7 @@ class LightspeedFTL(CopyProducer, FTL):
             email,
             subaddress
         FROM contacts
+        limit 5000000
     """
     chunk_size = 512  # in bytes
 
@@ -44,7 +45,7 @@ class LightspeedFTL(CopyProducer, FTL):
             "email",
             "subaddress"
         ])
-        self.consumer = CopyConsumer(conn, "public.contacts_v2", headers)
+        self.consumer = CopyConsumer(conn, "public.contacts_v2", headers, job=self.getJobName())
 
     def transform(self):
         pass

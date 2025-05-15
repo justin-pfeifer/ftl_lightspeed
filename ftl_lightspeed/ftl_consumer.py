@@ -1,7 +1,7 @@
 import os
 import logging
 from ftl_lightspeed import __version__
-from ftl_lightspeed.db.utils import set_application_name
+from ftl_lightspeed.db.utils import set_application_name, split_class_name
 
 logger = logging.getLogger("ftl")
 logger.setLevel(logging.INFO)  # Can override via env or main script
@@ -22,9 +22,21 @@ class BaseConsumer:
     def __exit__(self, exc_type, exc_val, exc_tb):
         pass
 
+class FTLConsumer:
+    """
+    Base class for FTL consumers. This class is not meant to be used directly.
+    It is intended to be subclassed by specific consumer implementations.
+    """
+    mode: str = "Consumer"
+    pass
 
-class CopyConsumer:
-    def __init__(self, conn, table: str, columns: str, has_header: bool = True):
+
+class CopyConsumer(FTLConsumer):
+    """
+    CopyConsumer is a subclass of FTLConsumer that handles PostgreSQL COPY operations.
+    It provides methods to stream data into a PostgreSQL database using the COPY command.
+    """
+    def __init__(self, conn, table: str, columns: str, has_header: bool = True, job: str = None):
         self.conn = conn
         self.table = table
         self.columns = columns
@@ -33,7 +45,7 @@ class CopyConsumer:
         self._context = None
         self.copy_in = None
         with self.conn.cursor() as cur:
-            set_application_name(cur, "COPY Consumer")
+            set_application_name(cur, mode=self.mode, job=job)
 
     def __enter__(self):
         logger.info(f"[START] COPY -> {self.table}")
@@ -65,6 +77,9 @@ class CopyConsumer:
             self.conn.rollback()
 
     def consume(self, source, chunk_mb: int = 64):
+        """
+        Consume data from a source and write it to the PostgreSQL table using COPY.
+        """
         chunk_size = chunk_mb * 1024 * 1024
 
         if isinstance(source, str):
